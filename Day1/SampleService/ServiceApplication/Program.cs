@@ -1,5 +1,5 @@
-﻿using MyServiceLibrary;
-using MyServiceLibrary.Interfaces.Implementations;
+﻿using UserServiceLibrary;
+using UserServiceLibrary.Interfaces.Implementations;
 
 namespace ServiceApplication
 {

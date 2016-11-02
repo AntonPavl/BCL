@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyServiceLibrary
+namespace UserServiceLibrary
 {
     public class User : IEquatable<User>
     {

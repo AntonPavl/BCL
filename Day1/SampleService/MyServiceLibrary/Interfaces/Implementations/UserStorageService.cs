@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyServiceLibrary.Exceptions;
+using UserServiceLibrary.Exceptions;
 
-namespace MyServiceLibrary.Interfaces.Implementations
+namespace UserServiceLibrary.Interfaces.Implementations
 {
     public class UserStorageService : IUserStorageService
     {
