@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DBB45675-D296-43BE-85ED-A05E8DE614E8}</ProjectGuid>
+    <ProjectGuid>{EDA2A7D5-22A1-41EB-86DD-2C0DD3BA2F14}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceApplication</RootNamespace>
-    <AssemblyName>ServiceApplication</AssemblyName>
+    <RootNamespace>SampleService</RootNamespace>
+    <AssemblyName>SampleService</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MyServiceLibrary\UserServiceLibrary.csproj">
-      <Project>{83615058-2919-4ca9-84c2-5368cef9f281}</Project>
-      <Name>UserServiceLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

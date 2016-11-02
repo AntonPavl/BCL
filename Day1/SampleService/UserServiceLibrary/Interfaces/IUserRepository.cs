@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserServiceLibrary.Interfaces
 {
-    public interface IUserRepository 
+    public interface IUserRepository
     {
         User Add(User user);
 
@@ -16,7 +16,7 @@ namespace UserServiceLibrary.Interfaces
 
         User Search(User user);
 
-        IEnumerable<User> SearchByPredicate(Func<User,User> f);
+        IEnumerable<User> SearchByPredicate(Func<User, User> f);
 
         bool Contains(User user);
     }

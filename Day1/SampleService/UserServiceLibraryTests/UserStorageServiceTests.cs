@@ -4,7 +4,6 @@ using UserServiceLibrary.Interfaces.Implementations;
 using UserServiceLibrary.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
-using Moq;
 using UserServiceLibrary;
 
 namespace UserStorageServiceTests
@@ -120,8 +119,8 @@ namespace UserStorageServiceTests
             list.Add(testuserValid);
             list.Add(valideUser);
 
-            Assert.AreEqual(Enumerable.SequenceEqual(list, uss.AddRange(list)),true);
-            
+            Assert.AreEqual(Enumerable.SequenceEqual(list, uss.AddRange(list)), true);
+
         }
 
         [TestMethod]
@@ -145,7 +144,7 @@ namespace UserStorageServiceTests
         {
             UserRepository ur = new UserRepository();
             UserStorageService uss = new UserStorageService(ur);
-            Assert.AreEqual(uss.Search(null),null);
+            Assert.AreEqual(uss.Search(null), null);
         }
 
         [TestMethod]
@@ -154,7 +153,7 @@ namespace UserStorageServiceTests
             UserRepository ur = new UserRepository();
             UserStorageService uss = new UserStorageService(ur);
             uss.Add(testuserValid);
-            Assert.AreEqual(testuserValid,uss.Search(testuserValid));
+            Assert.AreEqual(testuserValid, uss.Search(testuserValid));
         }
 
         [TestMethod]
@@ -221,7 +220,7 @@ namespace UserStorageServiceTests
             UserRepository ur = new UserRepository();
             UserStorageService uss = new UserStorageService(ur);
 
-            Assert.AreEqual(uss.Remove(null),false);
+            Assert.AreEqual(uss.Remove(null), false);
         }
 
         [TestMethod]
@@ -230,7 +229,7 @@ namespace UserStorageServiceTests
             UserRepository ur = new UserRepository();
             UserStorageService uss = new UserStorageService(ur);
 
-            Assert.AreEqual(uss.Remove(testuserFirstNameNull),false);
+            Assert.AreEqual(uss.Remove(testuserFirstNameNull), false);
         }
 
         [TestMethod]

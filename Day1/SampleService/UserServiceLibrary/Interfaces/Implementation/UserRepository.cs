@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserServiceLibrary.Exceptions;
+using UserServiceLibrary.Interfaces;
 
 namespace UserServiceLibrary.Interfaces.Implementations
 {
@@ -11,7 +12,7 @@ namespace UserServiceLibrary.Interfaces.Implementations
     {
         private List<User> _userList = new List<User>();
 
-        private Func<User,User, User> _equalSearch = (a,b) => 
+        private Func<User, User, User> _equalSearch = (a, b) =>
         {
             return a.Equals(b) ? a : null;
         };
@@ -59,7 +60,7 @@ namespace UserServiceLibrary.Interfaces.Implementations
             return this._userList.Find(x => this._equalSearch(x, user) != null);
         }
 
-        public IEnumerable<User> SearchByPredicate(Func<User,User> search)
+        public IEnumerable<User> SearchByPredicate(Func<User, User> search)
         {
             List<User> ret = new List<User>();
             foreach (var elem in this._userList)
