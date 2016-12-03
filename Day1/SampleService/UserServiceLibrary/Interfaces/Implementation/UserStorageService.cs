@@ -4,34 +4,72 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserServiceLibrary.Exceptions;
+using UserServiceLibrary.Interfaces.Implementation;
 
 namespace UserServiceLibrary.Interfaces.Implementations
 {
+    [Serializable]
     public class UserStorageService : IUserStorageService
     {
-        private UserRepository _userStorage;
 
-        public UserStorageService(UserRepository us)
+        #region fields
+
+        private readonly IUserRepository _userStorage;
+
+        private readonly Func<int, int> _idGenerator = (a) => a + 1;
+
+        private readonly IUserValidator _baseValidator = new UserValidator();
+
+        private readonly XMLDump _baseDump = new XMLDump();
+
+        private int _lastId;
+
+        #endregion endfields
+
+        #region ctors
+        public UserStorageService(IUserRepository us,Func<int,int> idGenerator)
         {
-            if (us == null) throw new ArgumentNullException();
+            if (us == null || idGenerator == null) throw new ArgumentNullException();
+            Validator = _baseValidator;
+            this._idGenerator = idGenerator;
             this._userStorage = us;
         }
 
-        public int Count => this._userStorage.Count;
+        public UserStorageService(IUserRepository us) : this(us, (a) => a + 1) { }
 
-        public User Add(User user)
+        public UserStorageService() : this(new UserRepository())
         {
-            this.Validate(user);
+
+        }
+
+        #endregion ctors
+
+        #region props
+        public int Count { get { return this._userStorage.Count; } }
+
+        public IUserValidator Validator { get; set; }
+
+        public int GetLastId { get { return _lastId; } }
+
+        #endregion props
+
+        #region methods
+
+        public int Add(User user)
+        {
+            user.Id = this._idGenerator?.Invoke(this._lastId) ?? default(int);
+            if (!this.Validator.Validate(user)) throw new ArgumentException();
             return this._userStorage.Add(user);
         }
 
-        public IEnumerable<User> AddRange(IEnumerable<User> users)
+        public IEnumerable<int> AddRange(IEnumerable<User> users)
         {
             if (users == null) throw new ArgumentNullException();
             if (users.Distinct().Count() < users.Count()) throw new ArgumentException();
             foreach (var item in users)
             {
-                Validate(item);
+                if (!Validator.Validate(item)) throw new ArgumentException();
+                item.Id = _idGenerator?.Invoke(_lastId) ?? default(int);
             }
             return this._userStorage.AddRange(users);
         }
@@ -46,32 +84,21 @@ namespace UserServiceLibrary.Interfaces.Implementations
             return this._userStorage.Search(user);
         }
 
-        public IEnumerable<User> SearchByPredicate(Func<User, User> f)
+        public IEnumerable<User> SearchByPredicate(Func<User, bool> f)
         {
             return _userStorage.SearchByPredicate(f);
         }
-
-        private void Validate(User user)
+        public IEnumerable<User> SearchByPredicate(ISearchCriteria sc)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            if (string.IsNullOrEmpty(user.FirstName))
-            {
-                throw new UserFieldsNullException();
-            }
-
-            if (string.IsNullOrEmpty(user.LastName))
-            {
-                throw new UserFieldsNullException();
-            }
-
-            if (this._userStorage.Contains(user))
-            {
-                throw new UserExistsException();
-            }
+            return _userStorage.SearchByPredicate(sc.Search);
         }
+
+        public void Dump(IDump d)
+        {
+            d.Dump(this);
+        }
+        public void Dump() => Dump(_baseDump);
+
+        #endregion methods
     }
 }

@@ -8,16 +8,18 @@ namespace UserServiceLibrary.Interfaces
 {
     public interface IUserRepository
     {
-        User Add(User user);
+        int Add(User user);
 
-        IEnumerable<User> AddRange(IEnumerable<User> users);
+        IEnumerable<int> AddRange(IEnumerable<User> users);
 
         bool Remove(User user);
 
         User Search(User user);
 
-        IEnumerable<User> SearchByPredicate(Func<User, User> f);
+        IEnumerable<User> SearchByPredicate(Func<User, bool> f);
 
         bool Contains(User user);
+
+        int Count { get;}
     }
 }
