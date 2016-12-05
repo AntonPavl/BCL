@@ -43,24 +43,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\SlaveOperationException.cs" />
     <Compile Include="Exceptions\UserExistsException.cs" />
     <Compile Include="Exceptions\UserFieldsNullException.cs" />
+    <Compile Include="Interfaces\Generic\IRepository.cs" />
+    <Compile Include="Interfaces\Generic\ISearchCriteria.cs" />
+    <Compile Include="Interfaces\Generic\IService.cs" />
     <Compile Include="Interfaces\IDump.cs" />
+    <Compile Include="Interfaces\IDumpeable.cs" />
     <Compile Include="Interfaces\Implementation\FirstNameSearchCriteria.cs" />
     <Compile Include="Interfaces\Implementation\UserRepository.cs" />
     <Compile Include="Interfaces\Implementation\UserStorageService.cs" />
     <Compile Include="Interfaces\Implementation\UserValidator.cs" />
     <Compile Include="Interfaces\Implementation\XMLDump.cs" />
-    <Compile Include="Interfaces\ISearchCriteria.cs" />
-    <Compile Include="Interfaces\IUserRepository.cs" />
-    <Compile Include="Interfaces\IUserStorageService.cs" />
     <Compile Include="Interfaces\IUserValidator.cs" />
+    <Compile Include="Master.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="Slave.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VisaRecords.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace UserServiceLibrary.Interfaces
 {
-    public interface IDumper<T>
+    public interface IDumpeable<T>
     {
-        void Dump(IEnumerable<T> list, string path = null);
-
-        IEnumerable<T> GetDump();
+        void Dump(IDumper<T> d);
+        IEnumerable<T> GetEntitiesFromDump(IDumper<T> d);
     }
 }

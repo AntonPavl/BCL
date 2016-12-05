@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserServiceLibrary.Exceptions;
 using UserServiceLibrary.Interfaces;
+using UserServiceLibrary.Interfaces.Generic;
 
 namespace UserServiceLibrary.Interfaces.Implementations
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : IRepository<User>
     {
 
         private readonly Func<User, User, User> _equalSearch = (a, b) =>
@@ -76,5 +78,20 @@ namespace UserServiceLibrary.Interfaces.Implementations
 
             return ret;
         }
+
+        public IEnumerable<User> GetEntities()
+        {
+            return _userList;
+        }
+
+        public IEnumerator<User> GetEnumerator()
+        {
+            foreach (var item in _userList)
+            {
+                yield return item;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

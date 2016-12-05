@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace UserServiceLibrary
 {
-    public struct VisaRecord
+    [Serializable]
+    public struct Visa
     {
         public string Country { get; set; }
         public DateTime Start { get; set; }

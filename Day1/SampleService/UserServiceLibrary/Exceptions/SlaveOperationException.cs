@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UserServiceLibrary.Interfaces
+namespace UserServiceLibrary.Exceptions
 {
-    public interface ISearchCriteria
+    public class SlaveOperationException : Exception
     {
-        bool Search(User item);
     }
 }

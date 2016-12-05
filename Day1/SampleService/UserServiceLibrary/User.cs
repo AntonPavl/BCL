@@ -8,7 +8,7 @@ namespace UserServiceLibrary
         Male = 0,
         Female = 1
     }
-
+    [Serializable]
     public class User : IEquatable<User>
     {
 
@@ -21,10 +21,7 @@ namespace UserServiceLibrary
 
         public string LastName { get; set; }
 
-        public List<VisaRecord> VisaRecords { get; set; }
-        public static bool operator !=(User u1, User u2) => !u1.Equals(u2);
-
-        public static bool operator ==(User u1, User u2) => u1.Equals(u2);
+        public List<Visa> VisaRecords { get; set; }
 
         public bool Equals(User other)
         {
