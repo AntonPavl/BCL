@@ -1,5 +1,4 @@
 ﻿using Attributes;
-using Attributes.Interfaces.Implementations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,23 +12,12 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
-            var users = new List<User>();
-            var advUsers = new List<AdvancedUser>();
-            var uv = new UserValidator();
-            var ass = typeof(User).Assembly;
-
-            var attrUsers = (InstantiateUserAttribute[])typeof(User).GetCustomAttributes(typeof(InstantiateUserAttribute), false);
-            foreach (var user in attrUsers)
-            {
-                users.Add(new User(user.Id) { FirstName = user.FirstName, LastName = user.LastName });
-            }
-
-            var assUsers = (InstantiateAdvancedUserAttribute[])Attribute.GetCustomAttributes(ass,typeof(InstantiateAdvancedUserAttribute), false);
-            foreach (var user in assUsers)
-            {
-                advUsers.Add(new AdvancedUser(user.Id,user.ExternalId) { FirstName = user.FirstName, LastName = user.LastName });
-            }
-
+            var us = new User(109);
+            Console.WriteLine("Console");
+            us.FirstName = "12313213213444";
+            us.LastName = "123213213";
+            var t = us.IsValid();
+            Console.WriteLine(t);
             Console.ReadKey();
         }
     }

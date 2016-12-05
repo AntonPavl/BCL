@@ -44,17 +44,12 @@
     <Compile Include="AdvancedUser.cs" />
     <Compile Include="InstantiateAdvancedUserAttribute.cs" />
     <Compile Include="InstantiateAttribute.cs" />
-    <Compile Include="Interfaces\Implementations\UserValidator.cs" />
-    <Compile Include="Interfaces\IModelValidator.cs" />
-    <Compile Include="Interfaces\IUserValidator.cs" />
     <Compile Include="IntValidatorAttribute.cs" />
     <Compile Include="MatchParameterAttribute.cs" />
-    <Compile Include="ModelValidator.cs" />
     <Compile Include="StringValidatorAttribute.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
