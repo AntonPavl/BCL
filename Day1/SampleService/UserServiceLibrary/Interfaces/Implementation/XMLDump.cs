@@ -13,6 +13,12 @@ namespace UserServiceLibrary.Interfaces.Implementation
     public class XMLDump : IDumper<User>
     {
         private string _filePath;
+
+        /// <summary>
+        /// Dump to XML
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="path"></param>
         public void Dump(IEnumerable<User> list,string path = null)
         {
             this._filePath = path;
@@ -35,16 +41,33 @@ namespace UserServiceLibrary.Interfaces.Implementation
                 throw new ArgumentNullException("Error reading app settings");
             }
         }
-        public IEnumerable<User> GetDump()
+
+        /// <summary>
+        /// Get Entites from dump
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public IEnumerable<User> GetDump(string path = null)
         {
             var formatter = new XmlSerializer(typeof(List<User>));
             IEnumerable<User> users;
-
-            using (FileStream fs = new FileStream(this._filePath, FileMode.OpenOrCreate))
+            try
             {
-                users = (IEnumerable<User>)formatter.Deserialize(fs);
+                var appSettings = ConfigurationManager.AppSettings;
+                if (this._filePath == null)
+                {
+                    this._filePath = appSettings["FileName"] ?? null;
+                    if (this._filePath == null) throw new ArgumentNullException();
+                }
+                using (FileStream fs = new FileStream(this._filePath, FileMode.OpenOrCreate))
+                {
+                    users = (IEnumerable<User>)formatter.Deserialize(fs);
+                }
             }
-
+            catch (ArgumentNullException)
+            {
+                throw new ArgumentNullException("Error reading app settings");
+            }
             return users;
         }
     }

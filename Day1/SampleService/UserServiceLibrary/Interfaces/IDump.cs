@@ -10,6 +10,6 @@ namespace UserServiceLibrary.Interfaces
     {
         void Dump(IEnumerable<T> list, string path = null);
 
-        IEnumerable<T> GetDump();
+        IEnumerable<T> GetDump(string path = null);
     }
 }

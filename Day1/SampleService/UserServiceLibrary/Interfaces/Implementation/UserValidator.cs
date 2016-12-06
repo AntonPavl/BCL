@@ -8,6 +8,11 @@ namespace UserServiceLibrary.Interfaces.Implementation
 {
     public class UserValidator : IUserValidator
     {
+        /// <summary>
+        /// Validate user to not null fields
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public bool Validate(User user)
         {
             if (user.FirstName == null ||

@@ -16,12 +16,19 @@ namespace UserServiceLibrary
     {
         private readonly IService<User> _service;
         private readonly int _port;
+
+        /// <summary>
+        /// Create slave
+        /// </summary>
+        /// <param name="service"></param>
         public Slave(IService<User> service)
         {
             this._service = service;
             this._port = Int32.Parse(ConfigurationManager.AppSettings["MasterPort"]);
         }
-
+        /// <summary>
+        /// Listen master stream
+        /// </summary>
         public void Listen()
         {
             TcpListener listener = null;

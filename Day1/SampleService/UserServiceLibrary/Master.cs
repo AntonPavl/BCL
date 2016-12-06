@@ -16,12 +16,22 @@ namespace UserServiceLibrary
         private readonly IService<User> _service;
         private readonly int port;
         private readonly string ip;
+
+        /// <summary>
+        /// Create masterUserService 
+        /// </summary>
+        /// <param name="service"></param>
         public Master(IService<User> service)
         {
             this.port = Int32.Parse(ConfigurationManager.AppSettings["MasterPort"]);
             this.ip = ConfigurationManager.AppSettings["MasterIP"];
             this._service = service;
         }
+        /// <summary>
+        /// Add user to service and send message to slaves
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public int Add(User user)
         {
             var result = this._service.Add(user);
@@ -33,7 +43,11 @@ namespace UserServiceLibrary
 
             return result;
         }
-
+        /// <summary>
+        /// Remove user from service and send message to slaves
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public bool Remove(User user)
         {
             var result = this._service.Remove(user);
@@ -45,7 +59,11 @@ namespace UserServiceLibrary
 
             return result;
         }
-
+        /// <summary>
+        /// Search user in service and send message to slaves
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public IEnumerable<User> Search(User user)
         {
              SendMessage(new Message(user, EventStatus.Search));
