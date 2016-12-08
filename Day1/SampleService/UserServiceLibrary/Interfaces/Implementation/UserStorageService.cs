@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using UserServiceLibrary.Exceptions;
 using UserServiceLibrary.Interfaces.Generic;
 using UserServiceLibrary.Interfaces.Implementation;
+using NLog;
+using System.Diagnostics;
 
 namespace UserServiceLibrary.Interfaces.Implementations
 {
@@ -14,6 +16,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
     {
 
         #region fields
+        public ILogger Logger { set; private get; }
+
+        private static BooleanSwitch boolSwitch = new BooleanSwitch("LogEnabled",
+    "Switch in config file");
 
         private readonly IRepository<User> _userStorage;
 
@@ -31,16 +37,29 @@ namespace UserServiceLibrary.Interfaces.Implementations
 
         #region ctors
         /// <summary>
+        /// Create userService with id generation from user repository and custom logger
+        /// </summary>
+        /// <param name="us">user repository</param>
+        /// <param name="idGenerator">Function with id generation logic</param>
+        public UserStorageService(IRepository<User> us, Func<int, int> idGenerator,ILogger logger)
+        {
+            if (us == null || idGenerator == null || logger == null) throw new ArgumentNullException();
+            _validators.Add(_baseValidator);
+            this.Logger = logger;
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info("new userService start");
+            }
+            this._idGenerator = idGenerator;
+            this._userStorage = us;
+        }
+        /// <summary>
         /// Create userService with id generation from user repository 
         /// </summary>
         /// <param name="us">user repository</param>
         /// <param name="idGenerator">Function with id generation logic</param>
-        public UserStorageService(IRepository<User> us,Func<int,int> idGenerator)
+        public UserStorageService(IRepository<User> us,Func<int,int> idGenerator) :this(us, idGenerator,LogManager.GetCurrentClassLogger())
         {
-            if (us == null || idGenerator == null) throw new ArgumentNullException();
-            _validators.Add(_baseValidator);
-            this._idGenerator = idGenerator;
-            this._userStorage = us;
         }
         /// <summary>
         /// Create userService from user repository, id => id + 1
@@ -74,6 +93,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <param name="uv">Validator rule</param>
         public void AddValidator(IUserValidator uv)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Add Validator");
+            }
             if (uv == null) throw new ArgumentNullException();
             _validators.Add(uv);
         }
@@ -84,6 +107,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public bool RemoveValidator(IUserValidator uv)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Remove Validator");
+            }
             if (uv == null) throw new ArgumentNullException();
             return _validators.Remove(uv);
         }
@@ -94,9 +121,14 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public int Add(User user)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Add");
+            }
             if (user == null) throw new ArgumentNullException();
+            if (_userStorage.Contains(user)) throw new UserExistsException();
             user.Id = this._idGenerator?.Invoke(this._lastId) ?? default(int);
-            if (!this._validators.All(x => x.Validate(user) == true)) throw new ArgumentException();  
+            if (!this._validators.All(x => x.Validate(user) == true)) throw new UserIsNotValid();  
             return this._userStorage.Add(user);
         }
         /// <summary>
@@ -106,11 +138,15 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public IEnumerable<int> AddRange(IEnumerable<User> users)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start AddRange");
+            }
             if (users == null) throw new ArgumentNullException();
             if (users.Distinct().Count() < users.Count()) throw new ArgumentException();
             foreach (var item in users)
             {
-                if (!_validators.All(x => x.Validate(item) == true)) throw new ArgumentException();
+                if (!_validators.All(x => x.Validate(item) == true)) throw new UserIsNotValid();
                 item.Id = _idGenerator?.Invoke(_lastId) ?? default(int);
             }
             return this._userStorage.AddRange(users);
@@ -122,6 +158,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public bool Remove(User user)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Remove");
+            }
             if (user == null) throw new ArgumentNullException();
             return this._userStorage.Remove(user);
         }
@@ -132,6 +172,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public User Search(User user)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Search");
+            }
             if (user == null) throw new ArgumentNullException();
             return this._userStorage.Search(user);
         }
@@ -142,6 +186,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public IEnumerable<User> SearchByPredicate(Func<User, bool> f)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start SearchByPredicate");
+            }
             if (f == null) throw new ArgumentNullException();
             return _userStorage.SearchByPredicate(f);
         }
@@ -152,6 +200,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public IEnumerable<User> SearchByPredicate(ISearchCriteria<User> sc)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start SearchByPreicate(interface)");
+            }
             if (sc == null) throw new ArgumentNullException();
             return _userStorage.SearchByPredicate(sc.Search);
         }
@@ -161,6 +213,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <param name="d">Dumper</param>
         public void Dump(IDumper<User> d)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Dump");
+            }
             if (d == null) throw new ArgumentNullException();
             d.Dump(_userStorage.GetEntities());
         }
@@ -175,8 +231,47 @@ namespace UserServiceLibrary.Interfaces.Implementations
         /// <returns></returns>
         public IEnumerable<User> GetEntitiesFromDump(IDumper<User> d)
         {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start GetEntitiesFromDump");
+            }
             if (d == null) throw new ArgumentNullException();
             return d.GetDump();
+        }
+
+        public IEnumerable<User> GetEntities()
+        {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start GetEntities");
+            }
+            return _userStorage.GetEntities();
+        }
+
+        public User GetEntityById(int i)
+        {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start GetEntitiyById");
+            }
+            try
+            { 
+                return _userStorage.GetEntityById(i);
+            }
+            catch(ArgumentOutOfRangeException)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public bool Contains(User user)
+        {
+            if (boolSwitch.Enabled)
+            {
+                Logger.Info ("Start Contains");
+            }
+            if (user == null) throw new ArgumentNullException();
+            return _userStorage.Contains(user);
         }
 
         #endregion methods

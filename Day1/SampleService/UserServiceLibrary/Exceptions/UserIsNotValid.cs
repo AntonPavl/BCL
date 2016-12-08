@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserServiceLibrary.Exceptions
 {
-    public class UserFieldsNullException : Exception
+    public class UserIsNotValid : Exception
     {
     }
 }

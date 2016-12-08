@@ -11,10 +11,10 @@ namespace UserStorageServiceTests
     [TestClass]
     public class UserStorageServiceTests
     {
-        public static User testuserFirstNameNull = new User() { FirstName = null, LastName = "asda", DateOfBirth = DateTime.Today };
-        public static User testuserSecondNameNull = new User() { FirstName = "asda", LastName = null, DateOfBirth = DateTime.Today };
-        public static User testuserValid = new User() { FirstName = "asda", LastName = "asda", DateOfBirth = DateTime.Today };
-        //wtf?
+        public static User testuserFirstNameNull = new User() { FirstName = null, LastName = "asda", DateOfBirth = DateTime.Today, VisaRecords = new List<Visa>() };
+        public static User testuserSecondNameNull = new User() { FirstName = "asda", LastName = null, DateOfBirth = DateTime.Today, VisaRecords = new List<Visa>() };
+        public static User testuserValid = new User() { FirstName = "asda", LastName = "asda", DateOfBirth = DateTime.Today, VisaRecords = new List<Visa>() };
+
         #region MOQ
         //
         //[TestMethod]
@@ -44,7 +44,7 @@ namespace UserStorageServiceTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(UserFieldsNullException))]
+        [ExpectedException(typeof(UserIsNotValid))]
         public void Add_FirstNameNullUser_ExceptionThrown()
         {
             UserRepository ur = new UserRepository();
@@ -54,7 +54,7 @@ namespace UserStorageServiceTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(UserFieldsNullException))]
+        [ExpectedException(typeof(UserIsNotValid))]
         public void Add_LastNameNullUser_ExceptionThrown()
         {
             UserRepository ur = new UserRepository();
@@ -70,7 +70,7 @@ namespace UserStorageServiceTests
             UserStorageService uss = new UserStorageService(ur);
 
             var t = uss.Add(testuserValid);
-            Assert.AreEqual(t, testuserValid);
+            Assert.AreEqual(uss.GetEntityById(0), testuserValid);
         }
 
         [TestMethod]
@@ -97,7 +97,7 @@ namespace UserStorageServiceTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(UserFieldsNullException))]
+        [ExpectedException(typeof(UserIsNotValid))]
         public void AddRange_WrongUsers_ExceptionThrown()
         {
             UserRepository ur = new UserRepository();
@@ -113,13 +113,14 @@ namespace UserStorageServiceTests
         {
             UserRepository ur = new UserRepository();
             UserStorageService uss = new UserStorageService(ur);
-            var valideUser = new User() { FirstName = "bbb", LastName = "bbbb", DateOfBirth = DateTime.Today };
+            var valideUser = new User() { FirstName = "bbb", LastName = "bbbb", DateOfBirth = DateTime.Today, VisaRecords = new List<Visa>() };
             List<User> list = new List<User>();
 
             list.Add(testuserValid);
             list.Add(valideUser);
-
-            Assert.AreEqual(Enumerable.SequenceEqual(list, uss.AddRange(list)), true);
+            uss.AddRange(list);
+            //uss.GetEntities().ToList()
+            Assert.AreEqual(Enumerable.SequenceEqual(list, uss.GetEntities().ToList()), true);
 
         }
 
@@ -140,6 +141,7 @@ namespace UserStorageServiceTests
         #region Search
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void Search_NullUser_ExceptionThrown()
         {
             UserRepository ur = new UserRepository();
@@ -177,8 +179,8 @@ namespace UserStorageServiceTests
             uss.Add(testuserValid);
 
             var list = uss.SearchByPredicate((x) => {
-                if (x == testuserValid) return x;
-                return null;
+                if (x == testuserValid) return true;
+                return false;
             });
 
             Assert.AreEqual(list.ElementAt(0), testuserValid);
@@ -192,8 +194,8 @@ namespace UserStorageServiceTests
             uss.Add(testuserValid);
 
             var list = uss.SearchByPredicate((x) => {
-                if (x == testuserFirstNameNull) return x;
-                return null;
+                if (x == testuserFirstNameNull) return true;
+                return false;
             });
 
             Assert.AreEqual(list.Count(), 0);
@@ -205,8 +207,8 @@ namespace UserStorageServiceTests
             UserRepository ur = new UserRepository();
             UserStorageService uss = new UserStorageService(ur);
             var list = uss.SearchByPredicate((x) => {
-                if (x == testuserFirstNameNull) return x;
-                return null;
+                if (x == testuserFirstNameNull) return true;
+                return false;
             });
             Assert.AreEqual(0, list.Count());
         }
@@ -215,6 +217,7 @@ namespace UserStorageServiceTests
         #region Delete
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void Delete_NullUser_false()
         {
             UserRepository ur = new UserRepository();

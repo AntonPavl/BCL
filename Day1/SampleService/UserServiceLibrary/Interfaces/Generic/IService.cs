@@ -14,9 +14,14 @@ namespace UserServiceLibrary.Interfaces.Generic
 
         bool Remove(T user);
 
+        bool Contains(T user);
+
         User Search(T user);
 
         IEnumerable<T> SearchByPredicate(Func<T, bool> f);
 
+        IEnumerable<T> GetEntities();
+
+        T GetEntityById(int i);
     }
 }

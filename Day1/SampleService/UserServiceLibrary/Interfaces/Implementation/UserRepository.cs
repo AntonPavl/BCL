@@ -130,5 +130,10 @@ namespace UserServiceLibrary.Interfaces.Implementations
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public User GetEntityById(int i)
+        {
+            return _userList[i];
+        }
     }
 }

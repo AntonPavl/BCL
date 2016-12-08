@@ -15,19 +15,23 @@ namespace SampleService
         static void Main(string[] args)
         {
             //MasterSlaveCreator.Create();
+            var validateUser = new User() { FirstName = "anton", LastName = "Pavlenok", DateOfBirth = DateTime.Today, Gender = Gender.Male, VisaRecords = new List<Visa>() };
             var appSettings = ConfigurationManager.AppSettings;
-            var u = new User();
             var uss = new UserStorageService(new UserRepository());
-            uss.Add(new User() {FirstName="anton",LastName="Pavlenok",DateOfBirth = DateTime.Today,Gender = Gender.Male,VisaRecords = new List<Visa>()});
-
-
-            var s = new Slave(uss);
-            s.Listen();
-            var m = new Master(uss);
-
-            Console.WriteLine(uss.SearchByPredicate(new FirstNameSearchCriteria("anton")).ToList()[0]?.FirstName);
-            uss.Dump();
-            Console.Read();
+            var myappSet = (dynamic)ConfigurationManager.GetSection("Slaves");
+            for (int i = 0; i < Int32.Parse(myappSet["slavesNum"]); i++)
+            {
+                var x = myappSet[$"slave{i}"].Split(' ');
+                Console.WriteLine(x[0]);
+                Console.WriteLine(x[1]);
+            }
+            //var s = new Slave(uss);
+            //var ss = new Slave(uss);
+            //s.Listen();
+            //var m = new Master(uss);
+            // m.Add(validateUser);
+            //uss.Dump();
+            //Console.ReadLine();
         }
     }
 }

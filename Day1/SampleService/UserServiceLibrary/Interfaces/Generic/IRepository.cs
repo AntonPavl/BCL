@@ -23,5 +23,6 @@ namespace UserServiceLibrary.Interfaces.Generic
         int Count { get; }
 
         IEnumerable<T> GetEntities();
+        T GetEntityById(int i);
     }
 }
