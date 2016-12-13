@@ -18,17 +18,20 @@ namespace UserServiceLibrary
     {
         private readonly IService<User> _service;
         private readonly int _port;
+        private readonly string _ip;
+        private object semaphor = new object();
         public ILogger Logger { set; private get; }
         /// <summary>
         /// Create slave with logger
         /// </summary>
         /// <param name="service"></param>
-        public Slave(IService<User> service,ILogger logger)
+        public Slave(IService<User> service,ILogger logger,string ip)
         {
             if (service == null || logger == null) throw new ArgumentNullException();
             this.Logger = logger;
             this._service = service;
             this._port = Int32.Parse(ConfigurationManager.AppSettings["MasterPort"]);
+            this._ip = ip;
             Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] in Domain[{Thread.GetDomainID()}] has been start");
             new Thread(() => Listen()).Start();
         }
@@ -36,66 +39,46 @@ namespace UserServiceLibrary
         /// Create slave
         /// </summary>
         /// <param name="service"></param>
-        public Slave(IService<User> service) : this(service,LogManager.GetCurrentClassLogger())
+        public Slave(IService<User> service,string ip) : this(service,LogManager.GetCurrentClassLogger(),ip)
         {
         }
-        /// <summary>
-        /// Listen master stream
-        /// </summary>
-        //public void Listen()
-        //{
-        //    Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] start Listen");
-        //    TcpListener listener = null;
-        //    Message message = null;
-        //    try
-        //    {
-        //        listener = new TcpListener(IPAddress.Parse(ConfigurationManager.AppSettings["MasterIP"]), this._port);
-        //        listener.Start();
-        //        var bf = new BinaryFormatter();
-        //        while (true)
-        //        {
-        //            Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] wait connection");
-        //            var client = listener.AcceptTcpClient();
-        //            Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] connected");
-        //            using (NetworkStream stream = client.GetStream())
-        //            {
-        //                message = (Message)bf.Deserialize(stream);
-        //                EventAction(message);
-        //            }
-        //            client.Close();
-        //        }
-        //    }
-        //    catch (SocketException e)
-        //    {
-        //        Logger.Error($"Slave[{Thread.CurrentThread.ManagedThreadId}] {e.StackTrace}");
-        //        Console.WriteLine("SocketException: {0}", e);
-        //    }
-        //    finally
-        //    {
-        //        listener.Stop();
-        //    }
-        //}
         public void Listen()
         {
             Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] start Listen");
-            TcpListener listener = null;
             Message message = null;
+            TcpClient client = null;
             try
             {
-                listener = new TcpListener(IPAddress.Parse(ConfigurationManager.AppSettings["MasterIP"]), this._port);
-                listener.Start();
-                var bf = new BinaryFormatter();
-                while (true)
+                //var port = Int32.Parse(ConfigurationManager.AppSettings["MasterPort"]);
+                using (client = new TcpClient(_ip, _port))
                 {
                     Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] wait connection");
-                    var client = listener.AcceptTcpClient();
-                    Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] connected");
-                    using (NetworkStream stream = client.GetStream())
+                    if (client.Connected == true)
                     {
-                        message = (Message)bf.Deserialize(stream);
-                        EventAction(message);
+                        var bf = new BinaryFormatter();
+                        Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] connected");
+                        var stream = client.GetStream();
+                        try
+                        {
+                            while (true)
+                            {
+                                if (stream.DataAvailable)
+                                { 
+                                    message = (Message)bf.Deserialize(stream);
+                                    Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] do {message.EventStatus}");
+                                    EventAction(message);
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            stream.Close();
+                        }
                     }
-                    client.Close();
+                    else
+                    {
+                        Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] not connected");
+                    }
                 }
             }
             catch (SocketException e)
@@ -103,24 +86,20 @@ namespace UserServiceLibrary
                 Logger.Error($"Slave[{Thread.CurrentThread.ManagedThreadId}] {e.StackTrace}");
                 Console.WriteLine("SocketException: {0}", e);
             }
-            finally
-            {
-                listener.Stop();
-            }
         }
-        public void Add(User user)
+        public void Add()
         {
             Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Add");
             throw new SlaveOperationException();
         }
 
-        public void Update(User user)
+        public void Update()
         {
             Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Update");
             Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Finished Update");
         }
 
-        public void Remove(User user)
+        public void Remove()
         {
             Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Remove");
             throw new SlaveOperationException();
@@ -128,9 +107,18 @@ namespace UserServiceLibrary
 
         public IEnumerable<User> Search(User user)
         {
-            Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Search");
-            Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Complete Search");
-            return null;
+            lock (semaphor)
+            {
+                var ret = new List<User>();
+                Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Search");
+                Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] Complete Search");
+                ret.Add(_service.Search(user));
+                foreach (var item in ret)
+                {
+                    Logger.Info($"Slave[{Thread.CurrentThread.ManagedThreadId}] find {item.FirstName},{item.LastName}");
+                }
+                return ret;
+            }
         }
 
         private void EventAction(Message message)
@@ -139,15 +127,15 @@ namespace UserServiceLibrary
             switch (message.EventStatus)
             {
                 case EventStatus.Add:
-                    Add(message.User);
+                    Add();
                     break;
 
                 case EventStatus.Remove:
-                    Remove(message.User);
+                    Remove();
                     break;
 
                 case EventStatus.Update:
-                    Update(message.User);
+                    Update();
                     break;
 
                 case EventStatus.Search:
